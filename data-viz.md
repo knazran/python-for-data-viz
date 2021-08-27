@@ -100,3 +100,172 @@ plt.plot(x,y, color='red')
 plt.bar(x,y, color='blue')
 
 ```
+
+
+# Day 2
+
+# Chart Styling
+```
+axis1 = df_case_by_state.groupby('date').sum().plot(
+                                            figsize=(12,8),
+                                            title="Trend of daily COVID-19 cases in Malaysia",
+                                            xlabel="Date",
+                                            ylabel="Number of cases",
+                                            legend=False,
+                                            fontsize=12
+                                            )
+
+
+axis1.set_ylabel("Number of cases", fontdict={'fontsize':14}, labelpad=16)
+axis1.set_xlabel("Date", fontdict={'fontsize':14}, labelpad=16)
+axis1.set_title("Trend of daily COVID-19 cases in Malaysia",pad=20, fontdict={'fontsize':16})
+
+plt.style.use('bmh')
+```
+
+# Bar Chart
+```
+plt.style.use('ggplot')
+
+axis1 = df_cluster_viz.plot(kind='bar', figsize=(10,5))
+
+axis1.set_ylabel("Number of Clusters", fontsize=10, labelpad=16)
+axis1.set_xlabel("")
+axis1.set_xticklabels(df_cluster_viz.index, rotation=70, fontsize=9)
+axis1.set_title("Number of COVID-19 clusters in Malaysia by States",pad=20, fontsize=16)
+
+axis1.spines['right'].set_visible(False)
+axis1.spines['top'].set_visible(False)
+```
+
+# Seaborn
+```
+iris = sns.load_dataset('iris')
+ 
+# plotting strip plot with seaborn
+ax = sns.stripplot(x='species', y='sepal_length', data=iris)
+
+plt.figure(figsize=(12,8))
+ax = sns.stripplot(x='state', y='cases_new', data=df_case_by_state)
+
+
+sns.displot(df_cluster_exploded, x="cases_total")
+```
+
+```
+# Data prep
+sns.boxplot(x='category', y='deaths', data=df_cluster_exploded)
+sns.violinplot(x='category', y='deaths', data=df_cluster_exploded,
+               hue='status', split=True)
+```
+
+# Formatted Violin plot
+```
+from matplotlib.ticker import FuncFormatter
+
+def format_tick_labels(x, pos):
+    return '{:,}'.format(int(x))
+
+axis1 = sns.violinplot(x='house_age_group', y='median_house_value', data=df_housing)
+
+axis1.set_ylabel("Number of Clusters", fontsize=10, labelpad=16)
+axis1.set_xlabel("")
+axis1.set_xticklabels(df_cluster_viz.index, rotation=70, fontsize=9)
+axis1.set_title("Number of COVID-19 clusters in Malaysia by States",pad=20, fontsize=16)
+
+axis1.yaxis.set_major_formatter(FuncFormatter(format_tick_labels))
+
+axis1.spines['right'].set_visible(False)
+axis1.spines['top'].set_visible(False)
+```
+
+# Housing
+```
+sns.boxplot(x='income_group', y='median_house_value', data=df_housing)
+sns.boxplot(x='house_age_group', y='median_house_value', data=df_housing)
+sns.violinplot(x='house_age_group', y='median_house_value', data=df_housing)
+```
+
+# Heatmap
+```
+corr_y = pd.DataFrame(df_housing).corr()
+
+plt.figure(figsize=(12,8))
+cmap = sns.diverging_palette(220, 20, as_cmap=True)
+
+sns.heatmap(corr_y, 
+            xticklabels=corr_y.columns.values,
+            yticklabels=corr_y.columns.values, 
+            annot=True,
+            cmap=cmap
+          )
+```
+
+# Mapping
+```
+import folium
+from folium.plugins import HeatMap
+
+map_california = folium.Map(location=[36.7783,-119.4179],
+                    zoom_start = 6, min_zoom=5) 
+
+df = df_housing[['latitude', 'longitude']]
+data = [[row['latitude'],row['longitude']] for index, row in df.iterrows()]
+HeatMap(data, radius=10).add_to(map_california)
+
+map_california
+```
+
+# Plotly
+```
+fig = px.line(df_case_by_state, x = "date", y = "cases_new",
+              color = "state")
+fig.show()
+```
+
+Interactive plots
+```
+df_cases_grouped = df_case_by_state.groupby('date').sum()
+
+# Create figure
+fig = go.Figure()
+
+fig.add_trace(
+    go.Scatter(x=list(df_cases_grouped.index), y=list(df_cases_grouped['cases_new'])))
+
+# Set title
+fig.update_layout(
+    title_text="Time series with range slider and selectors"
+)
+
+# Add range slider
+fig.update_layout(
+    xaxis=dict(
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1,
+                     label="1m",
+                     step="month",
+                     stepmode="backward"),
+                dict(count=6,
+                     label="6m",
+                     step="month",
+                     stepmode="backward"),
+                dict(count=1,
+                     label="YTD",
+                     step="year",
+                     stepmode="todate"),
+                dict(count=1,
+                     label="1y",
+                     step="year",
+                     stepmode="backward"),
+                dict(step="all")
+            ])
+        ),
+        rangeslider=dict(
+            visible=True
+        ),
+        type="date"
+    )
+)
+```
